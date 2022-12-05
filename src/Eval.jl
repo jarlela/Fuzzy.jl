@@ -14,9 +14,9 @@
 """
 function eval_fis(fis::FISMamdani, input_values::AbstractVector{<:AbstractFloat}, defuzz_method="WTAV")
 
-    firing_strengths = AbstractFloat[]
+    firing_strengths = Float64[]
     for rule in fis.rules
-        tmp_strengths = AbstractFloat[]
+        tmp_strengths = Float64[]
         for i in 1:length(rule.input_mf_names)
             if (rule.input_mf_names[i] !== "")
                 push!(tmp_strengths, eval(fis.input_mfs_dicts[i][rule.input_mf_names[i]], input_values[i]))
@@ -41,9 +41,9 @@ end
 """
 function eval_fis(fis::FISSugeno, input_values::Vector{<:AbstractFloat})
 
-    firing_strengths = AbstractFloat[]
+    firing_strengths = Float64[]
     for rule in fis.rules
-        tmp_strengths = AbstractFloat[]
+        tmp_strengths = Float64[]
         for i in 1:length(rule.input_mf_names)
             if (rule.input_mf_names[i] !== "")
                 push!(tmp_strengths, eval(fis.input_mfs_dicts[i][rule.input_mf_names[i]], input_values[i]))
@@ -78,14 +78,14 @@ end
             "MOM" - Mean of Maximum
             "WTAV" - Weighted Average
 """
-function defuzz(firing_strengths::Vector{AbstractFloat}, rules::Vector{Rule},	output_mfs_dict::Dict{AbstractString,MF}, defuzz_method::AbstractString)
+function defuzz(firing_strengths::Vector{F}, rules::Vector{R},	output_mfs_dict::Dict{String,MF}, defuzz_method::String) where {R<:Rule, F<:AbstractFloat}
 
     if defuzz_method == "MOM"
         max_firing_index = argmax(firing_strengths)
         max_fired_mf_name = rules[max_firing_index].output_mf
-        mean_at(output_mfs_dict[max_fired_mf_name], maximum(firing_strengths))
+        mean_at(output_mfs_dict[max_fired_mf_name], maximum(firing_strengths))::Union{Nothing, Float64}
     elseif defuzz_method == "WTAV"
-        mean_vec = AbstractFloat[]
+        mean_vec = Float64[]
         for i in 1:length(rules)
             push!(mean_vec, mean_at(output_mfs_dict[rules[i].output_mf], firing_strengths[i]))
         end
@@ -93,7 +93,8 @@ function defuzz(firing_strengths::Vector{AbstractFloat}, rules::Vector{Rule},	ou
         if sumfire != 0               
             (mean_vec' * firing_strengths)[1] / sum(firing_strengths)
         else
-            mean_vec
+            #mean_vec
+            nothing
         end
     end
 
@@ -102,7 +103,7 @@ end
 """
     Firing function
 """
-function firing(tmp_strengths::Vector{<:AbstractFloat}, firing_method::AbstractString)
+function firing(tmp_strengths::Vector{F}, firing_method::AbstractString) where {F<:AbstractFloat}
     if firing_method == "MIN"
         return	minimum_value(tmp_strengths)
     elseif firing_method == "A-PROD"

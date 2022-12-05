@@ -10,15 +10,18 @@
     # `output_mf` is either an AbstractString containing the connected output membership function name with `input_mf_names`
     # 		or is a Vector of AbstractFloat containing consequence parameters in case of Sugeno fis
 '''
-struct Rule
-    input_mf_names::Vector{AbstractString}
-    output_mf::Union{Vector{Float64},AbstractString}
-    firing_method::AbstractString
+struct Rule{O<:Union{Vector{Float64},String}}
+    input_mf_names::Vector{String}
+    output_mf::O
+    firing_method::String
 
-    function Rule(input_mf_names, output_mf, firing_method="MIN")
+    function Rule{O}(input_mf_names, output_mf, firing_method="MIN") where {O<:Union{Vector{Float64},AbstractString}}
         new(input_mf_names, output_mf, firing_method)
     end
 end
+Rule(input_mf_names, output_mf::O, firing_method="MIN") where {O<:Union{Vector{Float64},AbstractString}} =
+Rule{O}(input_mf_names, output_mf, firing_method)
+
 
 '''
     # Fuzzy Inference System of Mamdani type
@@ -33,9 +36,9 @@ end
     # `rules` is a Vector of Rule that form the inference system
 '''
 struct FISMamdani
-    input_mfs_dicts::Vector{Dict{AbstractString,MF}}
-    output_mfs_dict::Dict{AbstractString,MF}
-    rules::Vector{Rule}
+    input_mfs_dicts::Vector{Dict{String,MF}}
+    output_mfs_dict::Dict{String,MF}
+    rules::Vector{Rule{String}}
 end
 
 '''
@@ -49,6 +52,6 @@ end
     # `rules` is a Vector of Rule (of sugeno type) that form the inference system
 '''
 struct FISSugeno
-    input_mfs_dicts::Vector{Dict{AbstractString,MF}}
-    rules::Vector{Rule}
+    input_mfs_dicts::Vector{Dict{String,MF}}
+    rules::Vector{Rule{Vector{Float64}}}
 end
