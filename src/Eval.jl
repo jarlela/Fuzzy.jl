@@ -12,7 +12,7 @@
     `defuzz_method` is the method for defuzzification, see defuzz function definition
 
 """
-function eval_fis(fis::FISMamdani, input_values::Vector{<:AbstractFloat}, defuzz_method="WTAV")
+function eval_fis(fis::FISMamdani, input_values::AbstractVector{<:AbstractFloat}, defuzz_method="WTAV")
 
     firing_strengths = AbstractFloat[]
     for rule in fis.rules
